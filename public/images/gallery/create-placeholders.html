@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Placeholder Images</title>
+    <style>
+        canvas {
+            margin: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const images = [
+            { name: 'tournament-1.jpg', color: '#4A90E2', text: 'Championship Match' },
+            { name: 'team-photo.jpg', color: '#50E3C2', text: 'Team Photo' },
+            { name: 'practice-1.jpg', color: '#F5A623', text: 'Practice Session' },
+            { name: 'tournament-2.jpg', color: '#D0021B', text: 'Semi-finals' },
+            { name: 'victory.jpg', color: '#7ED321', text: 'Victory!' },
+            { name: 'team-huddle.jpg', color: '#9013FE', text: 'Team Huddle' }
+        ];
+
+        function createImage(config) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = config.color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Text
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(config.text, canvas.width / 2, canvas.height / 2);
+
+            // Add to page
+            document.body.appendChild(canvas);
+
+            // Download link
+            const link = document.createElement('a');
+            link.download = config.name;
+            link.href = canvas.toDataURL('image/jpeg', 0.8);
+            link.textContent = `Download ${config.name}`;
+            link.style.display = 'block';
+            document.body.appendChild(link);
+        }
+
+        images.forEach(createImage);
+    </script>
+</body>
+</html>
