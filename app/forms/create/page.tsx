@@ -10,17 +10,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Save, ArrowLeft } from 'lucide-react';
+import { PlusCircle, Trash2, Save, ArrowLeft, GripVertical } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export default function CreateFormPage() {
   const router = useRouter();
+  const [saving, setSaving] = useState(false);
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [questions, setQuestions] = useState<Partial<Question>[]>([
-    { questionText: '', questionType: 'SHORT_ANSWER', required: false, options: [] }
+    { 
+      questionText: '', 
+      questionType: 'SHORT_ANSWER', 
+      required: false,
+      options: []
+    }
   ]);
-  const [saving, setSaving] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const addQuestion = () => {
     setQuestions([...questions, { 
@@ -32,6 +38,10 @@ export default function CreateFormPage() {
   };
 
   const removeQuestion = (index: number) => {
+    if (questions.length === 1) {
+      alert('You must have at least one question');
+      return;
+    }
     setQuestions(questions.filter((_, i) => i !== index));
   };
 
@@ -65,6 +75,27 @@ export default function CreateFormPage() {
     setQuestions(updated);
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const updated = [...questions];
+    const [removed] = updated.splice(draggedIndex, 1);
+    updated.splice(dropIndex, 0, removed);
+    
+    setQuestions(updated);
+    setDraggedIndex(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -81,23 +112,22 @@ export default function CreateFormPage() {
     setSaving(true);
 
     try {
-      const formData: Partial<Form> = {
+      const formData = {
         formName: formName.trim(),
         formDescription: formDescription.trim(),
         userQuestions: questions.map((q, index) => ({
-          ...q,
-          id: index + 1,
-          order: index + 1,
           questionText: q.questionText || '',
           questionType: q.questionType || 'SHORT_ANSWER',
-          required: q.required || false
-        })) as Question[]
+          required: q.required || false,
+          order: index + 1,
+          options: q.options || []
+        }))
       };
 
       await createForm(formData);
       router.push('/forms');
     } catch (error) {
-      console.error('Error creating form:', error);
+      console.error('❌ Error creating form:', error);
       alert('Failed to create form. Please try again.');
     } finally {
       setSaving(false);
@@ -108,6 +138,31 @@ export default function CreateFormPage() {
     return type === 'MULTIPLE_CHOICE' || type === 'CHECKBOXES' || type === 'DROPDOWN';
   };
 
+  const renderPreview = (question: Partial<Question>) => {
+    switch (question.questionType) {
+      case 'SHORT_ANSWER':
+        return <Input placeholder="Short answer text" disabled />;
+      case 'PARAGRAPH':
+        return <Textarea placeholder="Long answer text" rows={3} disabled />;
+      case 'MULTIPLE_CHOICE':
+      case 'CHECKBOXES':
+      case 'DROPDOWN':
+        return (
+          <div className="space-y-2 text-sm text-muted-foreground">
+            {(question.options || []).length > 0 ? (
+              question.options?.map((opt, i) => (
+                <div key={i}>• {opt || `Option ${i + 1}`}</div>
+              ))
+            ) : (
+              <div className="italic">No options added yet</div>
+            )}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="mb-8">
@@ -116,7 +171,7 @@ export default function CreateFormPage() {
           Back to Forms
         </Button>
         <h1 className="text-4xl font-bold tracking-tight">Create New Form</h1>
-        <p className="text-muted-foreground mt-2">Build your custom form with various question types</p>
+        <p className="text-muted-foreground mt-2">Build your custom form with questions</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -150,10 +205,20 @@ export default function CreateFormPage() {
         </Card>
 
         {questions.map((question, index) => (
-          <Card key={index}>
+          <Card 
+            key={index}
+            draggable
+            onDragStart={() => handleDragStart(index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+            className={`cursor-move transition-all ${draggedIndex === index ? 'opacity-50' : ''}`}
+          >
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Question {index + 1}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+                  <CardTitle className="text-lg">Question {index + 1}</CardTitle>
+                </div>
                 {questions.length > 1 && (
                   <Button
                     type="button"
@@ -208,6 +273,12 @@ export default function CreateFormPage() {
                     Required
                   </Label>
                 </div>
+              </div>
+
+              {/* Preview Section */}
+              <div className="space-y-2 border-t pt-4">
+                <Label className="text-xs text-muted-foreground">Preview:</Label>
+                {renderPreview(question)}
               </div>
 
               {needsOptions(question.questionType) && (
