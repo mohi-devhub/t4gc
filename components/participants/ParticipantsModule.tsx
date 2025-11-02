@@ -10,6 +10,29 @@ import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
+// Helper function to send notifications via API
+async function sendNotification(action: string, data: Record<string, any>) {
+  try {
+    const response = await fetch("/api/notifications", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action, ...data }),
+    });
+
+    const result = await response.json();
+    // Handle both single result and array of results (for team-added)
+    if (Array.isArray(result.results)) {
+      return result.results.some((r: any) => r.success);
+    }
+    return result.success;
+  } catch (error) {
+    console.error("Failed to send notification:", error);
+    return false;
+  }
+}
+
 const mockParticipants = [
   { id: "1", name: "Alice Smith", age: 20, gender: "Female", team: "Blue Strikers", role: "Player", contact: "alice@example.com", status: "Pending" },
   { id: "2", name: "Bob Johnson", age: 25, gender: "Male", team: "Red Raptors", role: "Coach", contact: "bob@example.com", status: "Approved" },
@@ -63,19 +86,47 @@ export default function ParticipantsModule() {
     setForm((f) => ({ ...f, [name]: name === "age" ? Number(value) : value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setParticipants((curr) => [{ id: Date.now().toString(), ...form }, ...curr]);
+    const newParticipant = { id: Date.now().toString(), ...form };
+    setParticipants((curr) => [newParticipant, ...curr]);
     handleOpenChange(false);
     toast("Participant added", { description: `${form.name} was added successfully!` });
+    
+    // Send notification
+    const notificationSent = await sendNotification("participant-added", {
+      email: form.contact,
+      name: form.name,
+      team: form.team,
+      role: form.role,
+    });
+    
+    if (notificationSent) {
+      toast("Notification sent", { description: `Welcome email sent to ${form.name}` });
+    }
+    
     resetForm();
   };
 
-  const handleApprove = (id: string) => {
+  const handleApprove = async (id: string) => {
     setParticipants((curr) => curr.map((p) => (p.id === id && p.status === "Pending" ? { ...p, status: "Approved" } : p)));
     const p = participants.find((p) => p.id === id);
-    if (p) toast("Approved successfully", { description: `${p.name} is now approved.` });
+    if (p) {
+      toast("Approved successfully", { description: `${p.name} is now approved.` });
+      
+      // Send approval notification
+      const notificationSent = await sendNotification("participant-approved", {
+        email: p.contact,
+        name: p.name,
+        team: p.team,
+        role: p.role,
+      });
+      
+      if (notificationSent) {
+        toast("Notification sent", { description: `Approval email sent to ${p.name}` });
+      }
+    }
   };
 
   const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; id: string | null }>({ open: false, id: null });
@@ -123,10 +174,23 @@ export default function ParticipantsModule() {
   };
 
   const handleRemove = useCallback((id: string) => setConfirmDelete({ open: true, id }), []);
-  const handleDeleteConfirm = useCallback(() => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (participantToDelete) {
+      const participantData = { ...participantToDelete };
       setParticipants((curr) => curr.filter((p) => p.id !== participantToDelete.id));
       toast("Participant removed", { description: `${participantToDelete.name} was removed.` });
+      
+      // Send removal notification
+      const notificationSent = await sendNotification("participant-removed", {
+        email: participantData.contact,
+        name: participantData.name,
+        team: participantData.team,
+        role: participantData.role,
+      });
+      
+      if (notificationSent) {
+        toast("Notification sent", { description: `Removal email sent to ${participantData.name}` });
+      }
     }
     setConfirmDelete({ open: false, id: null });
   }, [participantToDelete]);
@@ -288,7 +352,7 @@ export default function ParticipantsModule() {
     setTeamMembers((prev) => prev.map((m, i) => (i === idx ? { ...m, ...patch } : m)));
   };
 
-  const submitTeam = (e: React.FormEvent) => {
+  const submitTeam = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!teamName.trim() || !teamMembersCount || teamMembers.length !== teamMembersCount) return;
     // Basic validation for each member
@@ -311,6 +375,18 @@ export default function ParticipantsModule() {
     setParticipants((curr) => [...newParticipants, ...curr]);
     handleTeamOpenChange(false);
     toast("Team added", { description: `${teamName} with ${newParticipants.length} member(s) added.` });
+    
+    // Send notifications to all team members
+    const emails = teamMembers.map((m) => m.contact);
+    const notificationSent = await sendNotification("team-added", {
+      emails,
+      teamName: teamName.trim(),
+      memberCount: newParticipants.length,
+    });
+    
+    if (notificationSent) {
+      toast("Notifications sent", { description: `Welcome emails sent to ${emails.length} team member(s)` });
+    }
   };
 
   const uniqueTeams = useMemo(() => Array.from(new Set(participants.map((p) => p.team))), [participants]);
@@ -346,10 +422,26 @@ export default function ParticipantsModule() {
     toast("Exported participants as CSV", { description: `${filteredParticipants.length} row(s) exported.` });
   }
 
-  const handleInlineStatusChange = (id: string, status: "Pending" | "Approved") => {
+  const handleInlineStatusChange = async (id: string, status: "Pending" | "Approved") => {
     setParticipants((curr) => curr.map((p) => (p.id === id ? { ...p, status } : p)));
     const p = participants.find((pp) => pp.id === id);
-    if (p) toast("Status updated", { description: `${p.name} set to ${status}.` });
+    if (p) {
+      toast("Status updated", { description: `${p.name} set to ${status}.` });
+      
+      // Send notification if approved (only when changing from Pending to Approved)
+      if (status === "Approved" && p.status === "Pending") {
+        const notificationSent = await sendNotification("participant-approved", {
+          email: p.contact,
+          name: p.name,
+          team: p.team,
+          role: p.role,
+        });
+        
+        if (notificationSent) {
+          toast("Notification sent", { description: `Approval email sent to ${p.name}` });
+        }
+      }
+    }
   };
 
   return (
