@@ -270,7 +270,6 @@ export default function SettingsPage() {
         <Button variant="outline">{t('settings.cancel')}</Button>
         <Button onClick={handleSave}>{t('settings.save')}</Button>
       </div>
-      <Toaster />
     </div>
   );
 }
