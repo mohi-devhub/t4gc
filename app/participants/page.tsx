@@ -4,12 +4,18 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ParticipantsModule from "@/components/participants/ParticipantsModule";
 import TimelineView from "@/components/participants/TimelineView";
+import FixtureGenerator from "@/components/participants/FixtureGenerator";
+import { useAuth } from "@/lib/auth-context";
 
 function ParticipantsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const initial = (searchParams.get("tab") as "participants" | "timeline") || "participants";
-  const [activeTab, setActiveTab] = useState<"participants" | "timeline">(initial);
+  const { user } = useAuth();
+  const initial = (searchParams.get("tab") as "participants" | "timeline" | "fixtures") || "participants";
+  const [activeTab, setActiveTab] = useState<"participants" | "timeline" | "fixtures">(initial);
+  const [participants, setParticipants] = useState<any[]>([]);
+  
+  const isEventHoster = user?.role === "event-hoster";
 
   useEffect(() => {
     const sp = new URLSearchParams(Array.from(searchParams.entries()));
@@ -18,7 +24,7 @@ function ParticipantsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  const TabButton = ({ id, label }: { id: "participants" | "timeline"; label: string }) => (
+  const TabButton = ({ id, label }: { id: "participants" | "timeline" | "fixtures"; label: string }) => (
     <button
       onClick={() => setActiveTab(id)}
       className={
@@ -37,9 +43,16 @@ function ParticipantsContent() {
       <div className="flex gap-4 border-b border-neutral-200">
         <TabButton id="participants" label="Participants" />
         <TabButton id="timeline" label="Timeline" />
+        <TabButton id="fixtures" label="Fixtures" />
       </div>
       <div className="mt-2">
-        {activeTab === "participants" ? <ParticipantsModule /> : <TimelineView />}
+        {activeTab === "participants" ? (
+          <ParticipantsModule onParticipantsChange={setParticipants} />
+        ) : activeTab === "timeline" ? (
+          <TimelineView />
+        ) : (
+          <FixtureGenerator participants={participants} isEventHoster={isEventHoster} />
+        )}
       </div>
     </div>
   );

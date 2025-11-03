@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { createForm } from '@/lib/api/forms';
-import { Form, Question, QuestionType } from '@/types/forms';
+import { Question, QuestionType } from '@/types/forms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,9 +12,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Trash2, Save, ArrowLeft, GripVertical } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
-export default function CreateFormPage() {
+export default function CreateTournamentFormPage() {
   const router = useRouter();
+  const params = useParams();
+  const tournamentId = params.id as string;
+  
   const [saving, setSaving] = useState(false);
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
@@ -26,7 +30,6 @@ export default function CreateFormPage() {
       options: []
     }
   ]);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const addQuestion = () => {
     setQuestions([...questions, { 
@@ -39,7 +42,7 @@ export default function CreateFormPage() {
 
   const removeQuestion = (index: number) => {
     if (questions.length === 1) {
-      alert('You must have at least one question');
+      toast.error('You must have at least one question');
       return;
     }
     setQuestions(questions.filter((_, i) => i !== index));
@@ -75,37 +78,16 @@ export default function CreateFormPage() {
     setQuestions(updated);
   };
 
-  // Drag and Drop handlers
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-
-    const updated = [...questions];
-    const [removed] = updated.splice(draggedIndex, 1);
-    updated.splice(dropIndex, 0, removed);
-    
-    setQuestions(updated);
-    setDraggedIndex(null);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formName.trim()) {
-      alert('Please enter a form name');
+      toast.error('Please enter a form name');
       return;
     }
 
     if (questions.length === 0 || !questions[0].questionText?.trim()) {
-      alert('Please add at least one question');
+      toast.error('Please add at least one question');
       return;
     }
 
@@ -113,10 +95,10 @@ export default function CreateFormPage() {
 
     try {
       const formData = {
-        formName: formName.trim(),
+        formName: `${formName.trim()} - Tournament ${tournamentId}`,
         formDescription: formDescription.trim(),
         userQuestions: questions.map((q, index) => ({
-          id: 0, // Temporary ID, will be assigned by backend
+          id: 0,
           questionText: q.questionText || '',
           questionType: q.questionType || 'SHORT_ANSWER',
           required: q.required || false,
@@ -126,10 +108,11 @@ export default function CreateFormPage() {
       };
 
       await createForm(formData);
-      router.push('/forms');
+      toast.success('Form created successfully!');
+      router.push(`/tournaments/${tournamentId}`);
     } catch (error) {
-      console.error('❌ Error creating form:', error);
-      alert('Failed to create form. Please try again.');
+      console.error('Error creating form:', error);
+      toast.error('Failed to create form. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -139,40 +122,15 @@ export default function CreateFormPage() {
     return type === 'MULTIPLE_CHOICE' || type === 'CHECKBOXES' || type === 'DROPDOWN';
   };
 
-  const renderPreview = (question: Partial<Question>) => {
-    switch (question.questionType) {
-      case 'SHORT_ANSWER':
-        return <Input placeholder="Short answer text" disabled />;
-      case 'PARAGRAPH':
-        return <Textarea placeholder="Long answer text" rows={3} disabled />;
-      case 'MULTIPLE_CHOICE':
-      case 'CHECKBOXES':
-      case 'DROPDOWN':
-        return (
-          <div className="space-y-2 text-sm text-muted-foreground">
-            {(question.options || []).length > 0 ? (
-              question.options?.map((opt, i) => (
-                <div key={i}>• {opt || `Option ${i + 1}`}</div>
-              ))
-            ) : (
-              <div className="italic">No options added yet</div>
-            )}
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="mb-8">
-        <Button variant="ghost" onClick={() => router.push('/forms')} className="mb-4">
+        <Button variant="ghost" onClick={() => router.push(`/tournaments/${tournamentId}`)} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Forms
+          Back to Tournament
         </Button>
-        <h1 className="text-4xl font-bold tracking-tight">Create New Form</h1>
-        <p className="text-muted-foreground mt-2">Build your custom form with questions</p>
+        <h1 className="text-4xl font-bold tracking-tight">Create Tournament Form</h1>
+        <p className="text-muted-foreground mt-2">Create a registration or feedback form for this tournament</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -186,7 +144,7 @@ export default function CreateFormPage() {
               <Label htmlFor="formName">Form Name *</Label>
               <Input
                 id="formName"
-                placeholder="Enter form name"
+                placeholder="e.g., Registration Form, Feedback Form"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 required
@@ -206,20 +164,10 @@ export default function CreateFormPage() {
         </Card>
 
         {questions.map((question, index) => (
-          <Card 
-            key={index}
-            draggable
-            onDragStart={() => handleDragStart(index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDrop={(e) => handleDrop(e, index)}
-            className={`cursor-move transition-all ${draggedIndex === index ? 'opacity-50' : ''}`}
-          >
+          <Card key={index}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
-                  <CardTitle className="text-lg">Question {index + 1}</CardTitle>
-                </div>
+                <CardTitle className="text-lg">Question {index + 1}</CardTitle>
                 {questions.length > 1 && (
                   <Button
                     type="button"
@@ -274,12 +222,6 @@ export default function CreateFormPage() {
                     Required
                   </Label>
                 </div>
-              </div>
-
-              {/* Preview Section */}
-              <div className="space-y-2 border-t pt-4">
-                <Label className="text-xs text-muted-foreground">Preview:</Label>
-                {renderPreview(question)}
               </div>
 
               {needsOptions(question.questionType) && (
@@ -337,7 +279,7 @@ export default function CreateFormPage() {
             type="button"
             variant="outline"
             size="lg"
-            onClick={() => router.push('/forms')}
+            onClick={() => router.push(`/tournaments/${tournamentId}`)}
           >
             Cancel
           </Button>

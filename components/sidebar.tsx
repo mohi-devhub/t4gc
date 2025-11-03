@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 export function Sidebar() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -29,50 +30,66 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-56 h-screen border-r border-neutral-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 flex flex-col p-4 gap-2">
-      <div className="mb-8 mt-2 font-bold text-lg tracking-tight">Y-Ultimate</div>
+    <aside className="w-56 h-screen sticky top-0 border-r border-neutral-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 flex flex-col p-4 gap-2 overflow-y-auto">
+      <div className="mb-4 mt-2 font-bold text-lg tracking-tight">Y-Ultimate</div>
+      
+      {user?.role === "event-hoster" && (
+        <Button 
+          onClick={() => router.push('/tournaments/create')} 
+          className="w-full mb-4"
+          size="sm"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          New Tournament
+        </Button>
+      )}
+      
       <nav className="flex flex-col gap-1 flex-1">
         <Link 
           href="/dashboard" 
           className={cn(
-            "px-3 py-2 rounded-md hover:bg-neutral-100 transition font-medium",
-            pathname === "/dashboard" && "bg-neutral-100"
-          )}
-        >
-          Dashboard
-        </Link>
-        <Link 
-          href="/participants" 
-          className={cn(
             "px-3 py-2 rounded-md hover:bg-neutral-100 transition",
-            pathname === "/participants" && "bg-neutral-100"
+            (pathname === "/dashboard" || pathname.startsWith("/tournaments")) && "bg-neutral-100 font-medium"
           )}
         >
           Tournaments
         </Link>
-        <Link 
-          href="/sponsorship" 
-          className={cn(
-            "px-3 py-2 rounded-md hover:bg-neutral-100 transition",
-            pathname === "/sponsorship" && "bg-neutral-100"
-          )}
-        >
-          Sponsorships
-        </Link>
+        {user?.role === "event-hoster" && (
+          <Link 
+            href="/sponsorship" 
+            className={cn(
+              "px-3 py-2 rounded-md hover:bg-neutral-100 transition",
+              pathname === "/sponsorship" && "bg-neutral-100 font-medium"
+            )}
+          >
+            Sponsorships
+          </Link>
+        )}
         <Link 
           href="/gallery" 
           className={cn(
             "px-3 py-2 rounded-md hover:bg-neutral-100 transition",
-            pathname === "/gallery" && "bg-neutral-100"
+            pathname === "/gallery" && "bg-neutral-100 font-medium"
           )}
         >
           Gallery
         </Link>
+        {user?.role === "user" && (
+          <Link 
+            href="/fixtures" 
+            className={cn(
+              "px-3 py-2 rounded-md hover:bg-neutral-100 transition",
+              pathname === "/fixtures" && "bg-neutral-100 font-medium"
+            )}
+          >
+            My Fixtures
+          </Link>
+        )}
         <Link 
           href="/past-tournaments" 
           className={cn(
             "px-3 py-2 rounded-md hover:bg-neutral-100 transition",
-            pathname === "/past-tournaments" && "bg-neutral-100"
+            pathname === "/past-tournaments" && "bg-neutral-100 font-medium"
           )}
         >
           Past Tournaments
