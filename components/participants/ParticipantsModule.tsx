@@ -436,6 +436,18 @@ export default function ParticipantsModule({ onParticipantsChange }: Participant
     [participants, search, filterTeam, filterStatus, sortByTeam]
   );
 
+  // Group participants by team
+  const participantsByTeam = useMemo(() => {
+    const grouped = new Map<string, typeof participants>();
+    filteredParticipants.forEach(p => {
+      if (!grouped.has(p.team)) {
+        grouped.set(p.team, []);
+      }
+      grouped.get(p.team)!.push(p);
+    });
+    return grouped;
+  }, [filteredParticipants]);
+
   // Remove JSON export; keep CSV only
   function exportCSV() {
     if (filteredParticipants.length === 0) return;
@@ -540,36 +552,47 @@ export default function ParticipantsModule({ onParticipantsChange }: Participant
               </tr>
             </thead>
             <tbody>
-              {filteredParticipants.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-neutral-50">
-                  <td className="px-4 py-2">{p.name}</td>
-                  <td className="px-4 py-2">{p.age}</td>
-                  <td className="px-4 py-2">{p.gender}</td>
-                  <td className="px-4 py-2">{p.team}</td>
-                  <td className="px-4 py-2">{p.role}</td>
-                  <td className="px-4 py-2">{p.contact}</td>
-                  <td className="px-4 py-2">
-                    <select
-                      value={p.status}
-                      onChange={(e) => handleInlineStatusChange(p.id, e.target.value as any)}
-                      className="border rounded px-2 py-1 text-sm h-9"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Approved">Approved</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-2 space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => openEdit(p.id)}>
-                      Edit
-                    </Button>
-                    <Button size="sm" disabled={p.status !== "Pending"} onClick={() => handleApprove(p.id)} variant="secondary">
-                      Approve
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
-                      Remove
-                    </Button>
-                  </td>
-                </tr>
+              {Array.from(participantsByTeam.entries()).map(([team, teamParticipants]) => (
+                <>
+                  <tr key={`team-${team}`} className="bg-neutral-50">
+                    <td colSpan={8} className="px-4 py-3 font-semibold text-neutral-700 border-t-2">
+                      {team} ({teamParticipants.length} {teamParticipants.length === 1 ? 'participant' : 'participants'})
+                    </td>
+                  </tr>
+                  {teamParticipants.map((p) => (
+                    <tr key={p.id} className="border-b hover:bg-neutral-50">
+                      <td className="px-4 py-2">{p.name}</td>
+                      <td className="px-4 py-2">{p.age}</td>
+                      <td className="px-4 py-2">{p.gender}</td>
+                      <td className="px-4 py-2">{p.team}</td>
+                      <td className="px-4 py-2">{p.role}</td>
+                      <td className="px-4 py-2">{p.contact}</td>
+                      <td className="px-4 py-2">
+                        <select
+                          value={p.status}
+                          onChange={(e) => handleInlineStatusChange(p.id, e.target.value as any)}
+                          className="border rounded px-2 py-1 text-sm h-9"
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Approved">Approved</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" onClick={() => openEdit(p.id)}>
+                            Edit
+                          </Button>
+                          <Button size="sm" disabled={p.status !== "Pending"} onClick={() => handleApprove(p.id)} variant="secondary">
+                            Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
+                            Remove
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </>
               ))}
               {filteredParticipants.length === 0 && (
                 <tr>

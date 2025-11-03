@@ -93,8 +93,11 @@ export default function SponsorshipPage() {
   // Regular user view
   if (!isEventHoster) {
     return (
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Sponsorship Opportunities</h1>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Sponsorship Opportunities</h1>
+          <p className="text-neutral-600 mt-1">Browse and sponsor available opportunities</p>
+        </div>
         {forms.filter(f => f.status === 'active').length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">

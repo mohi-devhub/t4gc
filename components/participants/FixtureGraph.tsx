@@ -40,7 +40,7 @@ type Match = {
 
 type FixtureGraphProps = {
   fixtures: Match[];
-  onUpdateMatch?: (matchId: string, result: { winner?: string; status: string; score1?: number; score2?: number }) => void;
+  onUpdateMatch?: (matchId: string, result: { winner?: string; status: "pending" | "completed" | "tie"; score1?: number; score2?: number }) => void;
   isEventHoster?: boolean;
 };
 
@@ -517,8 +517,6 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
             style: { strokeWidth: 3, stroke: '#6b7280' },
           }}
           connectionLineType={ConnectionLineType.SmoothStep}
-          edgesUpdatable={false}
-          edgesFocusable={false}
         >
           <Background color="#e5e7eb" gap={16} />
           <Controls showInteractive={false} />

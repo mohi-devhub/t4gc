@@ -5,29 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
-import { Bar, Doughnut } from 'react-chartjs-2';
 import { Participant } from "./ParticipantsModule";
 import FixtureGraph from "./FixtureGraph";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
 
 type Match = {
   id: string;
@@ -130,7 +109,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
     });
   };
 
-  const handleUpdateMatch = (matchId: string, result: { winner?: string; status: string; score1?: number; score2?: number }) => {
+  const handleUpdateMatch = (matchId: string, result: { winner?: string; status: "pending" | "completed" | "tie"; score1?: number; score2?: number }) => {
     setFixtures(prev => 
       prev.map(match => 
         match.id === matchId ? { ...match, ...result } : match
@@ -317,65 +296,6 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
             </Button>
           </div>
         )}
-      </div>
-
-      {/* Statistics and Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6 shadow-lg border-2">
-          <div className="h-80">
-            {teamCompositionData && (
-              <Bar data={teamCompositionData} options={chartOptions} />
-            )}
-          </div>
-        </Card>
-
-        <Card className="p-6 shadow-lg border-2">
-          <div className="h-80 flex items-center justify-center">
-            <div className="w-full max-w-sm">
-              <Doughnut data={roleDistributionData} options={doughnutOptions} />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Team Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {teamStats.map((stat) => (
-          <Card 
-            key={stat.team} 
-            className="p-4 shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-blue-600"
-          >
-            <h3 className="font-bold text-lg mb-3 text-gray-800">{stat.team}</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Players:</span>
-                <span className="font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                  {stat.players}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Coaches:</span>
-                <span className="font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">
-                  {stat.coaches}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Volunteers:</span>
-                <span className="font-semibold bg-amber-100 text-amber-700 px-2 py-1 rounded">
-                  {stat.volunteers}
-                </span>
-              </div>
-              <div className="pt-2 mt-2 border-t border-gray-200">
-                <div className="flex justify-between items-center font-bold">
-                  <span>Total:</span>
-                  <span className="bg-gray-800 text-white px-2 py-1 rounded">
-                    {stat.total}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        ))}
       </div>
 
       {/* Fixtures Display */}
