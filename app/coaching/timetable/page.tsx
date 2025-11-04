@@ -36,6 +36,7 @@ interface ClassItem {
 }
 
 interface TimetableData {
+  [key: string]: ClassItem[];
   Monday: ClassItem[];
   Tuesday: ClassItem[];
   Wednesday: ClassItem[];
