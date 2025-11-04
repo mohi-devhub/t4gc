@@ -47,19 +47,19 @@ type FixtureGraphProps = {
 // Custom node component for matches
 function MatchNode({ data }: { data: any }) {
   const getStatusColor = () => {
-    if (data.status === "completed") return "bg-green-50 border-green-500";
-    if (data.status === "tie") return "bg-yellow-50 border-yellow-500";
-    return "bg-white border-gray-300";
+    if (data.status === "completed") return "bg-green-50 dark:bg-green-900/20 border-green-500 dark:border-green-600";
+    if (data.status === "tie") return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500 dark:border-yellow-600";
+    return "bg-white dark:bg-neutral-800 border-gray-300 dark:border-neutral-600";
   };
 
   const getStatusBadge = () => {
     if (data.status === "completed" && data.winner) {
-      return <Badge className="bg-green-600 text-white text-xs">Winner: {data.winner}</Badge>;
+      return <Badge className="bg-green-600 dark:bg-green-700 text-white text-xs">Winner: {data.winner}</Badge>;
     }
     if (data.status === "tie") {
-      return <Badge className="bg-yellow-600 text-white text-xs">Tie</Badge>;
+      return <Badge className="bg-yellow-600 dark:bg-yellow-700 text-white text-xs">Tie</Badge>;
     }
-    return <Badge variant="outline" className="text-xs">Pending</Badge>;
+    return <Badge variant="outline" className="text-xs border-neutral-300 dark:border-neutral-600">Pending</Badge>;
   };
 
   return (
@@ -91,16 +91,16 @@ function MatchNode({ data }: { data: any }) {
         onClick={data.onClick}
       >
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-gray-500">Match #{data.matchNumber}</span>
-          {data.status === "completed" && <Trophy className="w-4 h-4 text-green-600" />}
+          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Match #{data.matchNumber}</span>
+          {data.status === "completed" && <Trophy className="w-4 h-4 text-green-600 dark:text-green-500" />}
         </div>
         <div className="space-y-2">
-          <div className={`flex items-center justify-between ${data.winner === data.team1 ? 'font-bold text-green-700' : ''}`}>
+          <div className={`flex items-center justify-between ${data.winner === data.team1 ? 'font-bold text-green-700 dark:text-green-400' : 'text-neutral-900 dark:text-neutral-100'}`}>
             <span className="text-sm">{data.team1}</span>
             {data.score1 !== undefined && <span className="text-lg font-bold">{data.score1}</span>}
           </div>
-          <div className="text-center text-xs text-gray-400 font-bold">VS</div>
-          <div className={`flex items-center justify-between ${data.winner === data.team2 ? 'font-bold text-green-700' : ''}`}>
+          <div className="text-center text-xs text-gray-400 dark:text-gray-500 font-bold">VS</div>
+          <div className={`flex items-center justify-between ${data.winner === data.team2 ? 'font-bold text-green-700 dark:text-green-400' : 'text-neutral-900 dark:text-neutral-100'}`}>
             <span className="text-sm">{data.team2}</span>
             {data.score2 !== undefined && <span className="text-lg font-bold">{data.score2}</span>}
           </div>
@@ -482,27 +482,27 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-600">
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-2 border-blue-600 dark:border-blue-700">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg">Tournament Progress</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="font-bold text-lg text-neutral-900 dark:text-neutral-100">Tournament Progress</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {completedMatches} of {totalMatches} matches completed ({Math.round((completedMatches / totalMatches) * 100)}%)
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Award className="w-8 h-8 text-blue-600" />
+            <Award className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
         </div>
-        <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-500"
+            className="h-full bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 transition-all duration-500"
             style={{ width: `${(completedMatches / totalMatches) * 100}%` }}
           />
         </div>
       </Card>
 
-      <Card className="p-6 shadow-lg border-2 border-gray-300" style={{ height: '600px' }}>
+      <Card className="p-6 shadow-lg border-2 border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-900" style={{ height: '600px' }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -518,8 +518,8 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
           }}
           connectionLineType={ConnectionLineType.SmoothStep}
         >
-          <Background color="#e5e7eb" gap={16} />
-          <Controls showInteractive={false} />
+          <Background color="#e5e7eb" gap={16} className="dark:opacity-20" />
+          <Controls showInteractive={false} className="dark:bg-neutral-800 dark:border-neutral-700" />
           <MiniMap
             nodeColor={(node) => {
               const match = matchesData.get(node.id);
@@ -527,36 +527,37 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
               if (match?.status === "tie") return "#eab308";
               return "#94a3b8";
             }}
+            className="dark:bg-neutral-800 dark:border-neutral-700"
           />
-          <Panel position="top-right" className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-lg">
+          <Panel position="top-right" className="bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm p-3 rounded-lg shadow-lg border dark:border-neutral-700">
             <div className="space-y-3">
-              <div className="font-semibold text-sm border-b pb-2">Match Status</div>
-              <div className="space-y-2 text-sm">
+              <div className="font-semibold text-sm border-b dark:border-neutral-700 pb-2 text-neutral-900 dark:text-neutral-100">Match Status</div>
+              <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <div className="w-4 h-4 bg-green-500 dark:bg-green-600 rounded"></div>
                   <span>Completed</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+                  <div className="w-4 h-4 bg-yellow-500 dark:bg-yellow-600 rounded"></div>
                   <span>Tie</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                  <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
                   <span>Pending</span>
                 </div>
               </div>
-              <div className="font-semibold text-sm border-b pb-2 mt-3">Connections</div>
-              <div className="space-y-2 text-sm">
+              <div className="font-semibold text-sm border-b dark:border-neutral-700 pb-2 mt-3 text-neutral-900 dark:text-neutral-100">Connections</div>
+              <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 bg-green-500"></div>
+                  <div className="w-8 h-0.5 bg-green-500 dark:bg-green-600"></div>
                   <span>Winner Advances</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 bg-yellow-500"></div>
+                  <div className="w-8 h-0.5 bg-yellow-500 dark:bg-yellow-600"></div>
                   <span>Both Advance (Tie)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 bg-gray-500"></div>
+                  <div className="w-8 h-0.5 bg-gray-500 dark:bg-gray-600"></div>
                   <span>Not Yet Played</span>
                 </div>
               </div>
@@ -567,10 +568,10 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
 
       {/* Match Result Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="dark:bg-neutral-900 dark:border-neutral-700">
           <DialogHeader>
-            <DialogTitle>Update Match Result</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="dark:text-neutral-100">Update Match Result</DialogTitle>
+            <DialogDescription className="dark:text-neutral-400">
               Set the winner and score for Match #{selectedMatch?.matchNumber}
             </DialogDescription>
           </DialogHeader>
@@ -578,40 +579,40 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">{selectedMatch.team1} Score</label>
+                  <label className="block text-sm font-medium mb-2 dark:text-neutral-200">{selectedMatch.team1} Score</label>
                   <input
                     type="number"
                     min="0"
                     value={score1}
                     onChange={(e) => setScore1(Number(e.target.value))}
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border rounded-md px-3 py-2 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">{selectedMatch.team2} Score</label>
+                  <label className="block text-sm font-medium mb-2 dark:text-neutral-200">{selectedMatch.team2} Score</label>
                   <input
                     type="number"
                     min="0"
                     value={score2}
                     onChange={(e) => setScore2(Number(e.target.value))}
-                    className="w-full border rounded-md px-3 py-2"
+                    className="w-full border rounded-md px-3 py-2 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-100"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium">Set Winner:</p>
+                <p className="text-sm font-medium dark:text-neutral-200">Set Winner:</p>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     onClick={() => handleSetWinner(selectedMatch.team1)}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
                   >
                     <Trophy className="w-4 h-4 mr-2" />
                     {selectedMatch.team1}
                   </Button>
                   <Button
                     onClick={() => handleSetWinner(selectedMatch.team2)}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
                   >
                     <Trophy className="w-4 h-4 mr-2" />
                     {selectedMatch.team2}
@@ -620,14 +621,14 @@ export default function FixtureGraph({ fixtures, onUpdateMatch, isEventHoster = 
                 <Button
                   onClick={handleSetTie}
                   variant="outline"
-                  className="w-full border-2 border-yellow-600 text-yellow-700 hover:bg-yellow-50"
+                  className="w-full border-2 border-yellow-600 text-yellow-700 hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-500 dark:hover:bg-yellow-950/30"
                 >
                   <Minus className="w-4 h-4 mr-2" />
                   Mark as Tie
                 </Button>
               </div>
 
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t dark:border-neutral-700">
                 <Button
                   onClick={handleResetMatch}
                   variant="destructive"

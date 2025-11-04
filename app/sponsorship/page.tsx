@@ -58,7 +58,7 @@ export default function SponsorshipPage() {
   }, []);
 
   const isAdmin = user?.role === "admin";
-  const isEventHoster = user?.role === "admin" || user?.role === "teacher";
+  const isEventHoster = user?.role === "teacher";
 
   const handleSponsorSubmit = (submission: SponsorSubmission) => {
     const newSponsor: Sponsor = {
@@ -90,6 +90,31 @@ export default function SponsorshipPage() {
     setSponsors(updatedSponsors);
     localStorage.setItem("sponsors", JSON.stringify(updatedSponsors));
   };
+
+  // Admin view-only - redirect to tournaments or show access denied
+  if (isAdmin) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
+          <CardHeader>
+            <CardTitle className="text-orange-900 dark:text-orange-100">Access Restricted</CardTitle>
+            <CardDescription className="text-orange-800 dark:text-orange-200">
+              Sponsorship management is not available for admins. Only teachers can manage sponsorships.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-orange-800 dark:text-orange-200 mb-4">
+              As an admin, you have access to other administrative features like timetable management, 
+              attendance tracking, and viewing tournament details.
+            </p>
+            <Button onClick={() => window.history.back()}>
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Regular user view
   if (!isEventHoster) {

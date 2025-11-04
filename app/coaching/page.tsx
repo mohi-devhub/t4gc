@@ -12,7 +12,8 @@ import { useAuth } from "@/lib/auth-context";
 export default function CoachingManagementPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin" || user?.role === "teacher";
+  const isTeacher = user?.role === "teacher";
+  const isAdmin = user?.role === "admin";
   
   const [sessions] = useState([
     {
@@ -67,20 +68,12 @@ export default function CoachingManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-          </div>
           <h1 className="text-3xl font-bold">Class Management</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mt-1">
             Manage classes, assignments, attendance, and student progress
           </p>
         </div>
-        {isAdmin && (
+        {isTeacher && (
           <Button onClick={() => router.push('/coaching/sessions/create')}>
             <Plus className="h-4 w-4 mr-2" />
             New Session
@@ -158,7 +151,7 @@ export default function CoachingManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {isAdmin && (
+            {isTeacher && (
               <Button 
                 variant="outline" 
                 className="justify-start h-auto py-4"
@@ -173,7 +166,7 @@ export default function CoachingManagementPage() {
                 </div>
               </Button>
             )}
-            {!isAdmin && (
+            {user?.role === "student" && (
               <Button 
                 variant="outline" 
                 className="justify-start h-auto py-4"
@@ -188,7 +181,7 @@ export default function CoachingManagementPage() {
                 </div>
               </Button>
             )}
-            {isAdmin && (
+            {(isTeacher || isAdmin) && (
               <Button 
                 variant="outline" 
                 className="justify-start h-auto py-4"
@@ -199,11 +192,11 @@ export default function CoachingManagementPage() {
                     <QrCode className="h-4 w-4 mr-2" />
                     <span className="font-semibold">Attendance</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">Mark attendance with QR</span>
+                  <span className="text-xs text-muted-foreground">{isAdmin ? 'View attendance overview' : 'Mark attendance with QR'}</span>
                 </div>
               </Button>
             )}
-            {!isAdmin && (
+            {user?.role === "student" && (
               <Button 
                 variant="outline" 
                 className="justify-start h-auto py-4"

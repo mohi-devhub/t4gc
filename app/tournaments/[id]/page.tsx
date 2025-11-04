@@ -44,7 +44,7 @@ export default function TournamentDetailPage() {
   
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('participants');
+  const [activeTab, setActiveTab] = useState(user?.role === 'student' ? 'myteam' : 'participants');
   const [participants, setParticipants] = useState<any[]>([]);
   
   const isAdmin = user?.role === "admin" || user?.role === "teacher";
@@ -65,6 +65,10 @@ export default function TournamentDetailPage() {
       setLoading(false);
     }
   };
+
+  // Check if user is admin (view-only for tournaments)
+  const isAdminViewOnly = user?.role === "admin";
+  const isEventHoster = user?.role === "teacher";
 
   if (loading) {
     return (
@@ -114,22 +118,26 @@ export default function TournamentDetailPage() {
           </div>
         </div>
         <div className="flex gap-2 mt-4">
-          <Button onClick={() => router.push(`/tournaments/${tournament.id}/create-form`)} variant="outline">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Create Form
-          </Button>
-          <Button onClick={() => {
-            const link = `${window.location.origin}/tournaments/${tournament.id}/register`;
-            navigator.clipboard.writeText(link);
-            toast.success("Registration link copied!");
-          }} variant="outline">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            Share Link
-          </Button>
+          {isEventHoster && (
+            <>
+              <Button onClick={() => router.push(`/tournaments/${tournament.id}/create-form`)} variant="outline">
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Create Form
+              </Button>
+              <Button onClick={() => {
+                const link = `${window.location.origin}/tournaments/${tournament.id}/register`;
+                navigator.clipboard.writeText(link);
+                toast.success("Registration link copied!");
+              }} variant="outline">
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                Share Link
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -195,21 +203,148 @@ export default function TournamentDetailPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="participants">Participants</TabsTrigger>
+          {(user?.role === 'teacher' || user?.role === 'admin') && (
+            <TabsTrigger value="participants">Participants</TabsTrigger>
+          )}
+          {user?.role === 'student' && (
+            <TabsTrigger value="myteam">My Team</TabsTrigger>
+          )}
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="fixtures">Fixtures</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="participants">
-          <ParticipantsModule onParticipantsChange={setParticipants} />
-        </TabsContent>
+        {(user?.role === 'teacher' || user?.role === 'admin') && (
+          <TabsContent value="participants">
+            {isAdminViewOnly ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Participants (View Only)</CardTitle>
+                  <CardDescription>
+                    As an admin, you can view participants but cannot make changes. Contact a teacher to manage participants.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ParticipantsModule onParticipantsChange={setParticipants} viewOnly={true} />
+                </CardContent>
+              </Card>
+            ) : (
+              <ParticipantsModule onParticipantsChange={setParticipants} />
+            )}
+          </TabsContent>
+        )}
+
+        {user?.role === 'student' && (
+          <TabsContent value="myteam">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Team</CardTitle>
+                <CardDescription>
+                  View your team members and their details
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  // Find student's team
+                  const studentParticipant = participants.find(p => p.contact === user?.email);
+                  const studentTeam = studentParticipant?.team;
+                  
+                  if (!studentTeam) {
+                    return (
+                      <div className="text-center py-12">
+                        <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Not Part of a Team</h3>
+                        <p className="text-sm text-muted-foreground">
+                          You haven't been assigned to a team yet.
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  const teamMembers = participants.filter(p => p.team === studentTeam && p.status === 'Approved');
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center gap-3">
+                          <Trophy className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                          <div>
+                            <h3 className="font-bold text-lg text-blue-900 dark:text-blue-300">{studentTeam}</h3>
+                            <p className="text-sm text-blue-700 dark:text-blue-400">
+                              {teamMembers.length} {teamMembers.length === 1 ? 'member' : 'members'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {teamMembers.map((member) => (
+                          <Card key={member.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex items-start gap-3">
+                                <div className="p-2 rounded-lg bg-primary/10">
+                                  <User className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="font-semibold text-sm truncate">{member.name}</h4>
+                                    {member.contact === user?.email && (
+                                      <Badge variant="secondary" className="text-xs">You</Badge>
+                                    )}
+                                  </div>
+                                  <div className="space-y-1 text-xs text-muted-foreground">
+                                    <p className="flex items-center gap-1">
+                                      <Badge variant="outline" className="text-xs">
+                                        {member.role}
+                                      </Badge>
+                                    </p>
+                                    <p>Age: {member.age}</p>
+                                    <p>Gender: {member.gender}</p>
+                                    <p className="truncate">{member.contact}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      <div className="mt-6 p-4 bg-neutral-50 dark:bg-neutral-900 rounded-lg border dark:border-neutral-800">
+                        <h4 className="font-semibold text-sm mb-3">Team Statistics</h4>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                              {teamMembers.filter(m => m.role === 'Player').length}
+                            </p>
+                            <p className="text-xs text-muted-foreground">Players</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                              {teamMembers.filter(m => m.role === 'Coach').length}
+                            </p>
+                            <p className="text-xs text-muted-foreground">Coaches</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                              {teamMembers.filter(m => m.role === 'Volunteer').length}
+                            </p>
+                            <p className="text-xs text-muted-foreground">Volunteers</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
         
         <TabsContent value="timeline">
           <TimelineView tournament={tournament} />
         </TabsContent>
         
         <TabsContent value="fixtures">
-          <FixtureGenerator participants={participants} isEventHoster={isAdmin} />
+          <FixtureGenerator participants={participants} isEventHoster={isEventHoster} />
         </TabsContent>
       </Tabs>
     </div>
