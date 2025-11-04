@@ -189,6 +189,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
             family: 'system-ui, -apple-system, sans-serif',
           },
           padding: 15,
+          color: 'rgb(107, 114, 128)',
         },
       },
       title: {
@@ -200,6 +201,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
           family: 'system-ui, -apple-system, sans-serif',
         },
         padding: 20,
+        color: 'rgb(107, 114, 128)',
       },
     },
     scales: {
@@ -207,6 +209,18 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
         beginAtZero: true,
         ticks: {
           stepSize: 1,
+          color: 'rgb(107, 114, 128)',
+        },
+        grid: {
+          color: 'rgba(107, 114, 128, 0.1)',
+        },
+      },
+      x: {
+        ticks: {
+          color: 'rgb(107, 114, 128)',
+        },
+        grid: {
+          color: 'rgba(107, 114, 128, 0.1)',
         },
       },
     },
@@ -224,6 +238,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
             family: 'system-ui, -apple-system, sans-serif',
           },
           padding: 15,
+          color: 'rgb(107, 114, 128)',
         },
       },
       title: {
@@ -235,6 +250,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
           family: 'system-ui, -apple-system, sans-serif',
         },
         padding: 20,
+        color: 'rgb(107, 114, 128)',
       },
     },
   };
@@ -254,12 +270,12 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
   return (
     <div className="space-y-6">
       {!isEventHoster && (
-        <Card className="p-4 bg-amber-50 border-2 border-amber-600">
+        <Card className="p-4 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-600 dark:border-amber-700">
           <div className="flex items-center gap-3">
             <div className="text-2xl">🔒</div>
             <div>
-              <h3 className="font-bold text-amber-900">View Only Access</h3>
-              <p className="text-sm text-amber-700">
+              <h3 className="font-bold text-amber-900 dark:text-amber-300">View Only Access</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-400">
                 Only event hosters can generate fixtures. You can view the tournament schedule below.
               </p>
             </div>
@@ -269,7 +285,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Fixture Generator</h2>
+          <h2 className="text-2xl font-bold dark:text-neutral-100">Fixture Generator</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {isEventHoster 
               ? `Generate tournament fixtures from approved participants (${teams.length} teams available)`
@@ -282,7 +298,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
             <Button 
               onClick={() => generateFixtures(false)}
               disabled={teams.length < 2}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-700 dark:to-blue-800 dark:hover:from-blue-800 dark:hover:to-blue-900 shadow-lg"
             >
               Generate Fixtures
             </Button>
@@ -290,7 +306,7 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
               onClick={() => generateFixtures(true)}
               disabled={teams.length < 2}
               variant="outline"
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/30"
             >
               Randomize Fixtures
             </Button>
@@ -316,10 +332,10 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
             </TabsContent>
 
             <TabsContent value="list" className="mt-4">
-              <Card className="p-6 shadow-lg border-2 border-blue-600">
+              <Card className="p-6 shadow-lg border-2 border-blue-600 dark:border-blue-700 dark:bg-neutral-900">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-800">Tournament Fixtures</h3>
-                  <div className="text-sm text-gray-600">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">Tournament Fixtures</h3>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     {fixtures.length} total matches • {Object.keys(fixturesByRound).length} rounds
                   </div>
                 </div>
@@ -331,17 +347,17 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
                     .map((roundNum) => (
                       <div key={roundNum} className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md">
+                          <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white px-4 py-2 rounded-lg font-bold shadow-md">
                             Round {roundNum}
                           </div>
-                          <div className="h-px flex-1 bg-gradient-to-r from-blue-300 to-transparent" />
+                          <div className="h-px flex-1 bg-gradient-to-r from-blue-300 dark:from-blue-800 to-transparent" />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {fixturesByRound[roundNum].map((match) => {
                             const getStatusColor = () => {
-                              if (match.status === "completed") return "border-l-green-500 bg-gradient-to-br from-green-50 to-white";
-                              if (match.status === "tie") return "border-l-yellow-500 bg-gradient-to-br from-yellow-50 to-white";
-                              return "border-l-blue-500 bg-gradient-to-br from-white to-gray-50";
+                              if (match.status === "completed") return "border-l-green-500 dark:border-l-green-600 bg-gradient-to-br from-green-50 to-white dark:from-green-950/20 dark:to-neutral-900";
+                              if (match.status === "tie") return "border-l-yellow-500 dark:border-l-yellow-600 bg-gradient-to-br from-yellow-50 to-white dark:from-yellow-950/20 dark:to-neutral-900";
+                              return "border-l-blue-500 dark:border-l-blue-600 bg-gradient-to-br from-white to-gray-50 dark:from-neutral-900 dark:to-neutral-800";
                             };
 
                             return (
@@ -350,51 +366,51 @@ export default function FixtureGenerator({ participants, isEventHoster = false }
                                 className={`p-4 hover:shadow-lg transition-all duration-300 border-l-4 ${getStatusColor()}`}
                               >
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-semibold text-gray-500">
+                                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                     Match #{match.matchNumber}
                                   </span>
                                   <div className={`w-2 h-2 rounded-full ${
-                                    match.status === "completed" ? "bg-green-500" : 
-                                    match.status === "tie" ? "bg-yellow-500" : "bg-blue-500"
+                                    match.status === "completed" ? "bg-green-500 dark:bg-green-600" : 
+                                    match.status === "tie" ? "bg-yellow-500 dark:bg-yellow-600" : "bg-blue-500 dark:bg-blue-600"
                                   } animate-pulse`} />
                                 </div>
                                 <div className="space-y-2">
                                   <div className="flex items-center gap-2 justify-between">
                                     <div className="flex items-center gap-2">
-                                      <div className={`w-2 h-2 rounded-full ${match.winner === match.team1 ? "bg-green-600" : "bg-blue-600"}`} />
-                                      <span className={`flex-1 ${match.winner === match.team1 ? "font-bold text-green-700" : "font-semibold text-gray-800"}`}>
+                                      <div className={`w-2 h-2 rounded-full ${match.winner === match.team1 ? "bg-green-600 dark:bg-green-500" : "bg-blue-600 dark:bg-blue-500"}`} />
+                                      <span className={`flex-1 ${match.winner === match.team1 ? "font-bold text-green-700 dark:text-green-400" : "font-semibold text-gray-800 dark:text-gray-200"}`}>
                                         {match.team1}
                                       </span>
                                     </div>
-                                    {match.score1 !== undefined && <span className="text-lg font-bold">{match.score1}</span>}
+                                    {match.score1 !== undefined && <span className="text-lg font-bold dark:text-neutral-100">{match.score1}</span>}
                                   </div>
-                                  <div className="flex items-center justify-center text-gray-400 font-bold text-sm">
+                                  <div className="flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold text-sm">
                                     VS
                                   </div>
                                   <div className="flex items-center gap-2 justify-between">
                                     <div className="flex items-center gap-2">
-                                      <div className={`w-2 h-2 rounded-full ${match.winner === match.team2 ? "bg-green-600" : "bg-red-600"}`} />
-                                      <span className={`flex-1 ${match.winner === match.team2 ? "font-bold text-green-700" : "font-semibold text-gray-800"}`}>
+                                      <div className={`w-2 h-2 rounded-full ${match.winner === match.team2 ? "bg-green-600 dark:bg-green-500" : "bg-red-600 dark:bg-red-500"}`} />
+                                      <span className={`flex-1 ${match.winner === match.team2 ? "font-bold text-green-700 dark:text-green-400" : "font-semibold text-gray-800 dark:text-gray-200"}`}>
                                         {match.team2}
                                       </span>
                                     </div>
-                                    {match.score2 !== undefined && <span className="text-lg font-bold">{match.score2}</span>}
+                                    {match.score2 !== undefined && <span className="text-lg font-bold dark:text-neutral-100">{match.score2}</span>}
                                   </div>
                                 </div>
                                 {match.status && (
                                   <div className="mt-2 flex justify-center">
                                     {match.status === "completed" && match.winner && (
-                                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                      <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded">
                                         Winner: {match.winner}
                                       </span>
                                     )}
                                     {match.status === "tie" && (
-                                      <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                                      <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded">
                                         Tie
                                       </span>
                                     )}
                                     {match.status === "pending" && (
-                                      <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                      <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 px-2 py-1 rounded">
                                         Pending
                                       </span>
                                     )}

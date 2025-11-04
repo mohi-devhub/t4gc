@@ -68,7 +68,7 @@ export default function UserRegistrationPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-950 dark:to-neutral-900 p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create User Account</CardTitle>
@@ -155,7 +155,7 @@ export default function UserRegistrationPage() {
                     value="student"
                     checked={formData.userType === "student"}
                     onChange={handleChange}
-                    className="w-4 h-4 text-primary border-neutral-300 focus:ring-2 focus:ring-primary"
+                    className="w-4 h-4 text-primary border-neutral-300 dark:border-neutral-600 focus:ring-2 focus:ring-primary dark:bg-neutral-800"
                   />
                   <Label htmlFor="student" className="font-normal cursor-pointer">
                     Student
@@ -170,7 +170,7 @@ export default function UserRegistrationPage() {
                     value="professional"
                     checked={formData.userType === "professional"}
                     onChange={handleChange}
-                    className="w-4 h-4 text-primary border-neutral-300 focus:ring-2 focus:ring-primary"
+                    className="w-4 h-4 text-primary border-neutral-300 dark:border-neutral-600 focus:ring-2 focus:ring-primary dark:bg-neutral-800"
                   />
                   <Label htmlFor="professional" className="font-normal cursor-pointer">
                     Working Professional
@@ -185,7 +185,7 @@ export default function UserRegistrationPage() {
                     value="other"
                     checked={formData.userType === "other"}
                     onChange={handleChange}
-                    className="w-4 h-4 text-primary border-neutral-300 focus:ring-2 focus:ring-primary"
+                    className="w-4 h-4 text-primary border-neutral-300 dark:border-neutral-600 focus:ring-2 focus:ring-primary dark:bg-neutral-800"
                   />
                   <Label htmlFor="other" className="font-normal cursor-pointer">
                     Other
@@ -243,13 +243,13 @@ export default function UserRegistrationPage() {
             )}
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-3">
+              <div className="text-sm text-destructive bg-destructive/10 dark:bg-destructive/20 border border-destructive/20 dark:border-destructive/30 rounded-md p-3">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md p-3">
                 Registration successful! Redirecting to login...
               </div>
             )}

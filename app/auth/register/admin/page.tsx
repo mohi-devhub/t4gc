@@ -58,7 +58,7 @@ export default function AdminRegistrationPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-white p-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-950 dark:to-neutral-900 p-4 py-8">
       <Card className="w-full max-w-3xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Register as Admin</CardTitle>
@@ -68,7 +68,7 @@ export default function AdminRegistrationPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Organization Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">Organization Information</h3>
+              <h3 className="text-lg font-semibold border-b dark:border-neutral-700 pb-2">Organization Information</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -92,7 +92,7 @@ export default function AdminRegistrationPage() {
                     value={formData.organizationType}
                     onChange={handleChange}
                     required
-                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                    className="w-full h-9 rounded-md border border-input bg-transparent dark:bg-neutral-900 dark:border-neutral-700 px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                   >
                     <option value="">Select type</option>
                     <option value="sports-club">Sports Club</option>
@@ -113,14 +113,14 @@ export default function AdminRegistrationPage() {
                   value={formData.description}
                   onChange={handleChange}
                   rows={3}
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] resize-none"
+                  className="w-full rounded-md border border-input bg-transparent dark:bg-neutral-900 dark:border-neutral-700 px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] resize-none"
                 />
               </div>
             </div>
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">Contact Information</h3>
+              <h3 className="text-lg font-semibold border-b dark:border-neutral-700 pb-2">Contact Information</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -180,7 +180,7 @@ export default function AdminRegistrationPage() {
 
             {/* Address Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">Address</h3>
+              <h3 className="text-lg font-semibold border-b dark:border-neutral-700 pb-2">Address</h3>
               
               <div className="space-y-2">
                 <Label htmlFor="address">Street Address *</Label>
@@ -239,7 +239,7 @@ export default function AdminRegistrationPage() {
 
             {/* Account Security */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">Account Security</h3>
+              <h3 className="text-lg font-semibold border-b dark:border-neutral-700 pb-2">Account Security</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -271,13 +271,13 @@ export default function AdminRegistrationPage() {
             </div>
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-3">
+              <div className="text-sm text-destructive bg-destructive/10 dark:bg-destructive/20 border border-destructive/20 dark:border-destructive/30 rounded-md p-3">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md p-3">
                 Registration successful! Redirecting to login...
               </div>
             )}

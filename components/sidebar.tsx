@@ -191,21 +191,6 @@ export function Sidebar() {
             </Link>
           </>
         )}
-
-        {isCoachSection && (user?.role === "admin" || user?.role === "teacher") && (
-          <>
-            <Link 
-              href="/coach/attendance" 
-              className={cn(
-                "px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition flex items-center gap-2",
-                pathname === "/coach/attendance" && "bg-neutral-100 dark:bg-neutral-800 font-medium"
-              )}
-            >
-              <ClipboardCheck className="h-4 w-4" />
-              {t('sidebar.markAttendance', 'Mark Attendance')}
-            </Link>
-          </>
-        )}
       </nav>
       
       <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">

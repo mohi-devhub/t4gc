@@ -6,11 +6,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Calendar, Clock, MapPin, AlertCircle, BookOpen, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { ArrowLeft, Calendar, Clock, MapPin, AlertCircle, BookOpen, FileText, Plus, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
 
 export default function ExamsPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
   const [upcomingExams] = useState([
     {
@@ -127,17 +149,17 @@ export default function ExamsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <Button variant="ghost" size="sm" onClick={() => router.push('/coaching')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-          </div>
           <h1 className="text-3xl font-bold">Exams Schedule</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mt-1">
             View and manage exam schedules
           </p>
         </div>
+        {isAdmin && (
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Exam
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
@@ -280,6 +302,12 @@ export default function ExamsPage() {
                       <Button variant="outline" size="sm" className="flex-1">
                         Study Materials
                       </Button>
+                      {isAdmin && (
+                        <Button variant="outline" size="sm" onClick={() => alert('Edit exam functionality')}>
+                          <Edit className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -363,6 +391,86 @@ export default function ExamsPage() {
           ))}
         </TabsContent>
       </Tabs>
+
+      {/* Create Exam Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Exam</DialogTitle>
+            <DialogDescription>
+              Schedule a new exam for students
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="subject">Subject *</Label>
+                <Input id="subject" placeholder="e.g., Mathematics - Calculus I" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="examType">Exam Type *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="quiz">Quiz</SelectItem>
+                    <SelectItem value="midterm">Midterm</SelectItem>
+                    <SelectItem value="final">Final</SelectItem>
+                    <SelectItem value="practical">Practical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="instructor">Instructor *</Label>
+                <Input id="instructor" placeholder="e.g., Dr. Sarah Johnson" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date">Exam Date *</Label>
+                <Input id="date" type="date" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="time">Time *</Label>
+                <Input id="time" placeholder="e.g., 10:00 AM - 12:00 PM" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="duration">Duration *</Label>
+                <Input id="duration" placeholder="e.g., 2 hours" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="totalMarks">Total Marks *</Label>
+                <Input id="totalMarks" type="number" placeholder="e.g., 100" />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="location">Location *</Label>
+                <Input id="location" placeholder="e.g., Main Hall A" />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="syllabus">Syllabus Coverage</Label>
+                <Textarea
+                  id="syllabus"
+                  placeholder="Topics and chapters to be covered in the exam"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="instructions">Special Instructions</Label>
+                <Textarea
+                  id="instructions"
+                  placeholder="Additional instructions for students"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setCreateDialogOpen(false)}>Create Exam</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

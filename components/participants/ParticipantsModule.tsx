@@ -58,6 +58,32 @@ const mockParticipants = [
   { id: "21", name: "Uma Thurman", age: 29, gender: "Female", team: "Orange Tigers", role: "Coach", contact: "uma@example.com", status: "Approved" },
   { id: "22", name: "Victor Hugo", age: 26, gender: "Male", team: "Yellow Dragons", role: "Volunteer", contact: "victor@example.com", status: "Pending" },
   { id: "23", name: "Wendy Williams", age: 24, gender: "Female", team: "Purple Knights", role: "Volunteer", contact: "wendy@example.com", status: "Pending" },
+  // Additional students for Blue Strikers team
+  { id: "24", name: "John Student", age: 19, gender: "Male", team: "Blue Strikers", role: "Player", contact: "student@student.edu", status: "Approved" },
+  { id: "25", name: "Sarah Thompson", age: 20, gender: "Female", team: "Blue Strikers", role: "Player", contact: "sarah.thompson@student.edu", status: "Approved" },
+  { id: "26", name: "David Chen", age: 21, gender: "Male", team: "Blue Strikers", role: "Player", contact: "david.chen@student.edu", status: "Approved" },
+  { id: "27", name: "Emma Wilson", age: 19, gender: "Female", team: "Blue Strikers", role: "Player", contact: "emma.wilson@student.edu", status: "Approved" },
+  { id: "28", name: "Coach Anderson", age: 35, gender: "Male", team: "Blue Strikers", role: "Coach", contact: "coach.anderson@school.edu", status: "Approved" },
+  // Additional students for Red Raptors team
+  { id: "29", name: "Alex Martinez", age: 20, gender: "Male", team: "Red Raptors", role: "Player", contact: "alex.martinez@student.edu", status: "Approved" },
+  { id: "30", name: "Sophia Lee", age: 19, gender: "Female", team: "Red Raptors", role: "Player", contact: "sophia.lee@student.edu", status: "Approved" },
+  { id: "31", name: "James Brown", age: 21, gender: "Male", team: "Red Raptors", role: "Player", contact: "james.brown@student.edu", status: "Approved" },
+  // Additional students for Green Warriors team  
+  { id: "32", name: "Olivia Davis", age: 20, gender: "Female", team: "Green Warriors", role: "Player", contact: "olivia.davis@student.edu", status: "Approved" },
+  { id: "33", name: "William Taylor", age: 22, gender: "Male", team: "Green Warriors", role: "Player", contact: "william.taylor@student.edu", status: "Approved" },
+  { id: "34", name: "Ava Garcia", age: 19, gender: "Female", team: "Green Warriors", role: "Player", contact: "ava.garcia@student.edu", status: "Approved" },
+  // Additional students for Yellow Dragons team
+  { id: "35", name: "Liam Anderson", age: 21, gender: "Male", team: "Yellow Dragons", role: "Player", contact: "liam.anderson@student.edu", status: "Approved" },
+  { id: "36", name: "Mia Robinson", age: 20, gender: "Female", team: "Yellow Dragons", role: "Player", contact: "mia.robinson@student.edu", status: "Approved" },
+  { id: "37", name: "Noah White", age: 22, gender: "Male", team: "Yellow Dragons", role: "Player", contact: "noah.white@student.edu", status: "Approved" },
+  // Additional students for Purple Knights team
+  { id: "38", name: "Isabella Harris", age: 19, gender: "Female", team: "Purple Knights", role: "Player", contact: "isabella.harris@student.edu", status: "Approved" },
+  { id: "39", name: "Mason Clark", age: 21, gender: "Male", team: "Purple Knights", role: "Player", contact: "mason.clark@student.edu", status: "Approved" },
+  { id: "40", name: "Charlotte Lewis", age: 20, gender: "Female", team: "Purple Knights", role: "Player", contact: "charlotte.lewis@student.edu", status: "Approved" },
+  // Additional students for Orange Tigers team
+  { id: "41", name: "Ethan Walker", age: 22, gender: "Male", team: "Orange Tigers", role: "Player", contact: "ethan.walker@student.edu", status: "Approved" },
+  { id: "42", name: "Amelia Hall", age: 19, gender: "Female", team: "Orange Tigers", role: "Player", contact: "amelia.hall@student.edu", status: "Approved" },
+  { id: "43", name: "Lucas Allen", age: 21, gender: "Male", team: "Orange Tigers", role: "Player", contact: "lucas.allen@student.edu", status: "Approved" },
 ];
 
 export type Participant = {
@@ -83,9 +109,10 @@ const emptyForm: Omit<Participant, "id"> = {
 
 type ParticipantsModuleProps = {
   onParticipantsChange?: (participants: Participant[]) => void;
+  viewOnly?: boolean;
 };
 
-export default function ParticipantsModule({ onParticipantsChange }: ParticipantsModuleProps = {}) {
+export default function ParticipantsModule({ onParticipantsChange, viewOnly = false }: ParticipantsModuleProps = {}) {
   const [participants, setParticipants] = useState<Participant[]>(mockParticipants);
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -494,11 +521,16 @@ export default function ParticipantsModule({ onParticipantsChange }: Participant
       <div className="flex flex-wrap gap-2 items-end justify-between">
         <div>
           <h2 className="text-xl font-semibold">Participants</h2>
+          {viewOnly && (
+            <p className="text-sm text-muted-foreground mt-1">View-only mode - no modifications allowed</p>
+          )}
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setTeamOpen(true)}>Add Team</Button>
+        {!viewOnly && (
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setTeamOpen(true)}>Add Team</Button>
           <Button onClick={() => setAddOpen(true)}>Add Participant</Button>
         </div>
+        )}
       </div>
       <div className="flex flex-wrap gap-4 mb-2 mt-2 items-end">
         <div>
@@ -531,10 +563,14 @@ export default function ParticipantsModule({ onParticipantsChange }: Participant
           <Button type="button" variant="outline" onClick={exportCSV} disabled={filteredParticipants.length === 0}>
             Export CSV
           </Button>
-          <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFileSelected} className="hidden" />
-          <Button type="button" variant="outline" onClick={handleImportClick}>
-            Import
-          </Button>
+          {!viewOnly && (
+            <>
+              <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFileSelected} className="hidden" />
+              <Button type="button" variant="outline" onClick={handleImportClick}>
+                Import
+              </Button>
+            </>
+          )}
         </div>
       </div>
       <Card className="p-3">
@@ -575,27 +611,35 @@ export default function ParticipantsModule({ onParticipantsChange }: Participant
                       <td className="px-4 py-2">{p.role}</td>
                       <td className="px-4 py-2">{p.contact}</td>
                       <td className="px-4 py-2">
-                        <select
-                          value={p.status}
-                          onChange={(e) => handleInlineStatusChange(p.id, e.target.value as any)}
-                          className="border rounded px-2 py-1 text-sm h-9"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Approved">Approved</option>
-                        </select>
+                        {viewOnly ? (
+                          <Badge variant={p.status === "Approved" ? "default" : "secondary"}>
+                            {p.status}
+                          </Badge>
+                        ) : (
+                          <select
+                            value={p.status}
+                            onChange={(e) => handleInlineStatusChange(p.id, e.target.value as any)}
+                            className="border rounded px-2 py-1 text-sm h-9"
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                          </select>
+                        )}
                       </td>
                       <td className="px-4 py-2">
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline" onClick={() => openEdit(p.id)}>
-                            Edit
-                          </Button>
-                          <Button size="sm" disabled={p.status !== "Pending"} onClick={() => handleApprove(p.id)} variant="secondary">
-                            Approve
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
-                            Remove
-                          </Button>
-                        </div>
+                        {!viewOnly && (
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" onClick={() => openEdit(p.id)}>
+                              Edit
+                            </Button>
+                            <Button size="sm" disabled={p.status !== "Pending"} onClick={() => handleApprove(p.id)} variant="secondary">
+                              Approve
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
+                              Remove
+                            </Button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
