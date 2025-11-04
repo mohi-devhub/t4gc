@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Download, Users, TrendingUp, Activity, Target, PieChart as PieChartIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import domtoimage from 'dom-to-image';
+import html2canvas from 'html2canvas';
 import {
   BarChart,
   Bar,
@@ -116,37 +116,25 @@ export default function TournamentAnalyticsPage() {
     if (!analyticsRef.current) return;
     
     setExporting(true);
-    toast.info('Generating PNG... This may take a moment');
+    toast.info('Generating PNG...');
     
     try {
-      // Use dom-to-image which handles complex content better
-      const dataUrl = await domtoimage.toPng(analyticsRef.current, {
-        quality: 1,
-        bgcolor: '#ffffff',
-        width: analyticsRef.current.scrollWidth,
-        height: analyticsRef.current.scrollHeight,
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left',
-          width: analyticsRef.current.scrollWidth + 'px',
-          height: analyticsRef.current.scrollHeight + 'px'
-        }
+      const canvas = await html2canvas(analyticsRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
       });
-
-      // Create download link
-      const link = document.createElement('a');
-      const fileName = tournament 
-        ? `${tournament.name.replace(/\s+/g, '-')}-Analytics-${new Date().toISOString().split('T')[0]}.png`
-        : `tournament-${tournamentId}-analytics.png`;
       
-      link.download = fileName;
-      link.href = dataUrl;
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `tournament-${tournamentId}-analytics.png`;
+      link.href = image;
       link.click();
       
-      toast.success('Analytics exported as PNG successfully!');
+      toast.success('Analytics exported successfully!');
     } catch (error) {
-      console.error('Error exporting PNG:', error);
-      toast.error('Failed to export. Please try again.');
+      console.error('Error exporting:', error);
+      toast.error('Failed to export analytics');
     } finally {
       setExporting(false);
     }
@@ -198,25 +186,12 @@ export default function TournamentAnalyticsPage() {
           </div>
           <Button onClick={handleExportPNG} disabled={exporting}>
             <Download className="mr-2 h-4 w-4" />
-            {exporting ? 'Generating...' : 'Export as PNG'}
+            {exporting ? 'Exporting...' : 'Export as PNG'}
           </Button>
         </div>
       </div>
 
-      <div ref={analyticsRef} className="space-y-6 bg-white p-8 rounded-lg shadow-sm">
-        {/* Header Section */}
-        <div className="border-b-2 pb-6 mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">{tournament.name}</h2>
-          <p className="text-lg text-gray-600 mt-1">Tournament Analytics Report</p>
-          <p className="text-sm text-gray-500 mt-2">
-            Generated on: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-        </div>
-
+      <div ref={analyticsRef} className="space-y-6">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
@@ -226,8 +201,8 @@ export default function TournamentAnalyticsPage() {
                   <Activity className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">Total Matches</p>
-                  <p className="text-2xl font-bold text-gray-900">{mockMatchReports.length}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Total Matches</p>
+                  <p className="text-2xl font-bold">{mockMatchReports.length}</p>
                   <p className="text-xs text-green-600 mt-1">+2 from last week</p>
                 </div>
               </div>
@@ -241,9 +216,9 @@ export default function TournamentAnalyticsPage() {
                   <Users className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">Total Participants</p>
-                  <p className="text-2xl font-bold text-gray-900">{tournament.currentParticipants}</p>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mb-1">Total Participants</p>
+                  <p className="text-2xl font-bold">{tournament.currentParticipants}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
                     of {tournament.maxParticipants} max
                   </p>
                 </div>
@@ -258,8 +233,8 @@ export default function TournamentAnalyticsPage() {
                   <TrendingUp className="h-6 w-6 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">Avg Attendance</p>
-                  <p className="text-2xl font-bold text-gray-900">492</p>
+                  <p className="text-sm text-muted-foreground mb-1">Avg Attendance</p>
+                  <p className="text-2xl font-bold">492</p>
                   <p className="text-xs text-green-600 mt-1">+12% increase</p>
                 </div>
               </div>
@@ -273,9 +248,9 @@ export default function TournamentAnalyticsPage() {
                   <Target className="h-6 w-6 text-orange-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">Goals Scored</p>
-                  <p className="text-2xl font-bold text-gray-900">47</p>
-                  <p className="text-xs text-gray-600 mt-1">2.1 per match</p>
+                  <p className="text-sm text-muted-foreground mb-1">Goals Scored</p>
+                  <p className="text-2xl font-bold">47</p>
+                  <p className="text-xs text-muted-foreground mt-1">2.1 per match</p>
                 </div>
               </div>
             </CardContent>
@@ -319,11 +294,11 @@ export default function TournamentAnalyticsPage() {
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Male Participants</p>
+                  <p className="text-sm text-muted-foreground">Male Participants</p>
                   <p className="text-2xl font-bold text-blue-600">{totalMale}</p>
                 </div>
                 <div className="text-center p-4 bg-pink-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Female Participants</p>
+                  <p className="text-sm text-muted-foreground">Female Participants</p>
                   <p className="text-2xl font-bold text-pink-600">{totalFemale}</p>
                 </div>
               </div>
@@ -392,27 +367,27 @@ export default function TournamentAnalyticsPage() {
           <CardContent>
             <div className="space-y-4">
               {mockMatchReports.map((report) => (
-                <Card key={report.id} className="border-l-4 border-l-blue-500">
+                <Card key={report.id} className="border-l-4 border-l-primary">
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <h3 className="font-semibold text-lg mb-2">{report.matchName}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{report.date}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{report.date}</p>
                         <Badge variant="outline" className="mb-2">
                           {report.team1} vs {report.team2}
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 mb-1">Final Score</p>
+                        <p className="text-sm text-muted-foreground mb-1">Final Score</p>
                         <p className="text-2xl font-bold mb-3">{report.score}</p>
                         <p className="text-sm">
                           <span className="font-medium">MVP:</span> {report.mvp}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 mb-1">Attendance</p>
+                        <p className="text-sm text-muted-foreground mb-1">Attendance</p>
                         <p className="text-xl font-semibold mb-3">{report.attendance}</p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {report.highlights}
                         </p>
                       </div>
@@ -448,12 +423,6 @@ export default function TournamentAnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="border-t-2 pt-6 mt-8 text-center">
-          <p className="text-sm text-gray-500">End of Analytics Report • Generated by Tournament Management System</p>
-          <p className="text-xs text-gray-400 mt-1">© 2024 All Rights Reserved</p>
-        </div>
       </div>
     </div>
   );
