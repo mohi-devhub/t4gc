@@ -7,7 +7,7 @@ interface User {
   id?: string;
   email: string;
   name: string;
-  role: "user" | "admin" | "coach" | "student";
+  role: "user" | "admin" | "teacher" | "student";
 }
 
 interface AuthContextType {
@@ -36,13 +36,13 @@ const ADMIN_USER: User = {
   role: "admin"
 };
 
-const COACH_EMAIL = "coach@example.com";
-const COACH_PASSWORD = "coach123";
-const COACH_USER: User = {
-  id: "COACH_001",
-  email: COACH_EMAIL,
-  name: "John Coach",
-  role: "coach"
+const TEACHER_EMAIL = "teacher@example.com";
+const TEACHER_PASSWORD = "teacher123";
+const TEACHER_USER: User = {
+  id: "TEACHER_001",
+  email: TEACHER_EMAIL,
+  name: "Dr. Sarah Johnson",
+  role: "teacher"
 };
 
 const STUDENT_EMAIL = "student@example.com";
@@ -81,8 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       currentUser = TEST_USER;
     } else if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       currentUser = ADMIN_USER;
-    } else if (email === COACH_EMAIL && password === COACH_PASSWORD) {
-      currentUser = COACH_USER;
+    } else if (email === TEACHER_EMAIL && password === TEACHER_PASSWORD) {
+      currentUser = TEACHER_USER;
     } else if (email === STUDENT_EMAIL && password === STUDENT_PASSWORD) {
       currentUser = STUDENT_USER;
     }

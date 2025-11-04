@@ -47,7 +47,7 @@ export default function TournamentDetailPage() {
   const [activeTab, setActiveTab] = useState('participants');
   const [participants, setParticipants] = useState<any[]>([]);
   
-  const isEventHoster = user?.role === "event-hoster";
+  const isAdmin = user?.role === "admin" || user?.role === "teacher";
 
   useEffect(() => {
     loadTournamentData();
@@ -88,7 +88,7 @@ export default function TournamentDetailPage() {
             <CardDescription>The tournament you're looking for doesn't exist.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push('/dashboard')}>Back to Dashboard</Button>
+            <Button onClick={() => router.push('/tournaments')}>Back to Tournaments</Button>
           </CardContent>
         </Card>
       </div>
@@ -98,9 +98,9 @@ export default function TournamentDetailPage() {
   return (
     <div className="container mx-auto py-8 max-w-6xl">
       <div className="mb-8">
-        <Button variant="ghost" onClick={() => router.push('/dashboard')} className="mb-4">
+        <Button variant="ghost" onClick={() => router.push('/tournaments')} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+          Back to Tournaments
         </Button>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -209,7 +209,7 @@ export default function TournamentDetailPage() {
         </TabsContent>
         
         <TabsContent value="fixtures">
-          <FixtureGenerator participants={participants} isEventHoster={isEventHoster} />
+          <FixtureGenerator participants={participants} isEventHoster={isAdmin} />
         </TabsContent>
       </Tabs>
     </div>

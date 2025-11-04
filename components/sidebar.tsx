@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, User, Settings, Plus, FileText, ClipboardCheck, QrCode } from "lucide-react";
+import { LogOut, User, Settings, Plus, ClipboardCheck, QrCode } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
@@ -33,7 +33,6 @@ export function Sidebar() {
                                pathname.startsWith("/past-tournaments") ||
                                pathname.startsWith("/participants") ||
                                pathname.startsWith("/voting") ||
-                               pathname.startsWith("/forms") ||
                                pathname.startsWith("/sponsorship") ||
                                pathname.startsWith("/gallery");
   
@@ -73,16 +72,6 @@ export function Sidebar() {
               )}
             >
               {t('sidebar.tournaments')}
-            </Link>
-            <Link 
-              href="/forms" 
-              className={cn(
-                "px-3 py-2 rounded-md hover:bg-neutral-100 transition flex items-center gap-2",
-                pathname.startsWith("/forms") && "bg-neutral-100 font-medium"
-              )}
-            >
-              <FileText className="h-4 w-4" />
-              {t('sidebar.forms')}
             </Link>
             {user?.role === "admin" && (
               <Link 
@@ -144,12 +133,47 @@ export function Sidebar() {
               href="/coaching" 
               className={cn(
                 "px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition",
-                pathname.startsWith("/coaching") && "bg-neutral-100 dark:bg-neutral-800 font-medium"
+                pathname === "/coaching" && "bg-neutral-100 dark:bg-neutral-800 font-medium"
               )}
             >
-              {t('sidebar.coaching')}
+              {t('sidebar.coaching', 'Classes')}
             </Link>
-            {/* Add more coaching-related links here */}
+            <Link 
+              href="/coaching/assignments" 
+              className={cn(
+                "px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition",
+                pathname.startsWith("/coaching/assignments") && "bg-neutral-100 dark:bg-neutral-800 font-medium"
+              )}
+            >
+              Assignments
+            </Link>
+            <Link 
+              href="/coaching/attendance" 
+              className={cn(
+                "px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition",
+                pathname.startsWith("/coaching/attendance") && "bg-neutral-100 dark:bg-neutral-800 font-medium"
+              )}
+            >
+              Attendance
+            </Link>
+            <Link 
+              href="/coaching/timetable" 
+              className={cn(
+                "px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition",
+                pathname.startsWith("/coaching/timetable") && "bg-neutral-100 dark:bg-neutral-800 font-medium"
+              )}
+            >
+              Timetable
+            </Link>
+            <Link 
+              href="/coaching/exams" 
+              className={cn(
+                "px-3 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition",
+                pathname.startsWith("/coaching/exams") && "bg-neutral-100 dark:bg-neutral-800 font-medium"
+              )}
+            >
+              Exams
+            </Link>
           </>
         )}
 
@@ -168,7 +192,7 @@ export function Sidebar() {
           </>
         )}
 
-        {isCoachSection && user?.role === "coach" && (
+        {isCoachSection && (user?.role === "admin" || user?.role === "teacher") && (
           <>
             <Link 
               href="/coach/attendance" 

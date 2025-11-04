@@ -58,7 +58,7 @@ export default function SponsorshipPage() {
   }, []);
 
   const isAdmin = user?.role === "admin";
-  const isEventHoster = user?.role === "admin" || user?.role === "event_hoster";
+  const isEventHoster = user?.role === "admin" || user?.role === "teacher";
 
   const handleSponsorSubmit = (submission: SponsorSubmission) => {
     const newSponsor: Sponsor = {

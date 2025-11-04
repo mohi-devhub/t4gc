@@ -33,8 +33,8 @@ export default function TournamentsPage() {
   const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
   const [selectedTournamentName, setSelectedTournamentName] = useState("");
   
-  const isAdmin = user?.role === "admin";
-  const isEventHoster = user?.role === "admin";
+  const isAdmin = user?.role === "admin" || user?.role === "teacher";
+  const isEventHoster = user?.role === "admin" || user?.role === "teacher";
 
   // Translation helper for tournament types
   const getTypeLabel = (type: string) => {
