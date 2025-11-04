@@ -72,12 +72,25 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="text-xs text-muted-foreground bg-blue-50 border border-blue-200 rounded-md p-3">
-              <strong>Test Credentials:</strong>
-              <br />
-              <strong>Regular User:</strong> test@example.com / test123
-              <br />
-              <strong>Admin:</strong> admin@example.com / admin123
+            <div className="text-xs bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md p-3 space-y-3">
+              <div className="font-semibold text-blue-900 dark:text-blue-100 text-sm">Demo Credentials:</div>
+              <div className="space-y-2.5">
+                <div className="bg-white dark:bg-neutral-900 rounded p-2 border border-blue-100 dark:border-blue-900">
+                  <div className="font-medium text-purple-600 dark:text-purple-400 mb-1">Admin (Full Access)</div>
+                  <div className="text-muted-foreground">admin@example.com / admin123</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">✓ All management tools + Access Control</div>
+                </div>
+                <div className="bg-white dark:bg-neutral-900 rounded p-2 border border-blue-100 dark:border-blue-900">
+                  <div className="font-medium text-blue-600 dark:text-blue-400 mb-1">Teacher</div>
+                  <div className="text-muted-foreground">teacher@example.com / teacher123</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">✓ Tournaments, Classes, Assignments, Attendance, Exams</div>
+                </div>
+                <div className="bg-white dark:bg-neutral-900 rounded p-2 border border-blue-100 dark:border-blue-900">
+                  <div className="font-medium text-green-600 dark:text-green-400 mb-1">Student</div>
+                  <div className="text-muted-foreground">student@example.com / student123</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">✓ View tournaments, Submit assignments, Check attendance</div>
+                </div>
+              </div>
             </div>
 
             <Button type="submit" className="w-full">

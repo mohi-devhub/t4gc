@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Users, Settings, User, LogOut } from "lucide-react";
+import { Trophy, Users, Settings, User, LogOut, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useTranslation } from "react-i18next";
@@ -32,17 +32,32 @@ export default function DashboardPage() {
       icon: Trophy,
       href: "/tournaments",
       gradient: "from-blue-500 to-purple-600",
-      hoverGradient: "hover:from-blue-600 hover:to-purple-700"
+      hoverGradient: "hover:from-blue-600 hover:to-purple-700",
+      roles: ["admin", "teacher", "user", "student"]
     },
     {
-      title: "Coaching Management",
-      description: "Manage coaching sessions, schedules and resources",
+      title: "Class Management",
+      description: "Manage classes, assignments, attendance and exams",
       icon: Users,
       href: "/coaching",
       gradient: "from-green-500 to-teal-600",
-      hoverGradient: "hover:from-green-600 hover:to-teal-700"
+      hoverGradient: "hover:from-green-600 hover:to-teal-700",
+      roles: ["admin", "teacher", "student"]
+    },
+    {
+      title: "Access Control",
+      description: "Manage user permissions and access levels",
+      icon: Shield,
+      href: "/access-control",
+      gradient: "from-orange-500 to-red-600",
+      hoverGradient: "hover:from-orange-600 hover:to-red-700",
+      roles: ["admin"]
     }
   ];
+
+  const userCards = managementCards.filter(card => 
+    card.roles.includes(user?.role || "user")
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -57,7 +72,7 @@ export default function DashboardPage() {
           
           <div className="flex items-center gap-4">
             <Badge variant="secondary" className="px-3 py-1">
-              {user?.role === "admin" ? "Admin" : "User"}
+              {user?.role === "admin" ? "Admin" : user?.role === "teacher" ? "Teacher" : "Student"}
             </Badge>
             
             <DropdownMenu>
@@ -114,7 +129,7 @@ export default function DashboardPage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
-        {managementCards.map((card) => {
+        {userCards.map((card) => {
           const Icon = card.icon;
           return (
             <motion.div

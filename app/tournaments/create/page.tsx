@@ -54,9 +54,9 @@ export default function CreateTournamentPage() {
   return (
     <div className="container mx-auto py-8 max-w-3xl">
       <div className="mb-8">
-        <Button variant="ghost" onClick={() => router.push('/dashboard')} className="mb-4">
+        <Button variant="ghost" onClick={() => router.push('/tournaments')} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+          Back to Tournaments
         </Button>
         <h1 className="text-4xl font-bold tracking-tight">Create New Tournament</h1>
         <p className="text-muted-foreground mt-2">Set up your tournament details</p>

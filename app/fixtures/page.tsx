@@ -31,7 +31,7 @@ const mockUserTeams = ["Blue Strikers", "Red Raptors", "Green Warriors"];
 function FixturesContent() {
   const { user } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const isEventHoster = user?.role === "admin";
+  const isEventHoster = user?.role === "admin" || user?.role === "teacher";
 
   useEffect(() => {
     // Auto-select first team for normal users

@@ -4,9 +4,10 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useRouter, usePathname } from "next/navigation";
 
 interface User {
+  id?: string;
   email: string;
   name: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "teacher" | "student";
 }
 
 interface AuthContextType {
@@ -33,6 +34,24 @@ const ADMIN_USER: User = {
   email: ADMIN_EMAIL,
   name: "Admin",
   role: "admin"
+};
+
+const TEACHER_EMAIL = "teacher@example.com";
+const TEACHER_PASSWORD = "teacher123";
+const TEACHER_USER: User = {
+  id: "TEACHER_001",
+  email: TEACHER_EMAIL,
+  name: "Dr. Sarah Johnson",
+  role: "teacher"
+};
+
+const STUDENT_EMAIL = "student@example.com";
+const STUDENT_PASSWORD = "student123";
+const STUDENT_USER: User = {
+  id: "STU_001",
+  email: STUDENT_EMAIL,
+  name: "Aarav Patel",
+  role: "student"
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -62,6 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       currentUser = TEST_USER;
     } else if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       currentUser = ADMIN_USER;
+    } else if (email === TEACHER_EMAIL && password === TEACHER_PASSWORD) {
+      currentUser = TEACHER_USER;
+    } else if (email === STUDENT_EMAIL && password === STUDENT_PASSWORD) {
+      currentUser = STUDENT_USER;
     }
     
     if (currentUser) {
